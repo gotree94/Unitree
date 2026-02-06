@@ -4,29 +4,6 @@ Unitree
 
 ---
 
-## USD 뷰어
-
-## 요약
-| 뷰어 | 특징 | 학습 포인트| 
-|:----:|:----:|:----:|
-| 기본 뷰어 | PyOpenGL + GLFW로 직접 렌더링 | 버텍스/메시 구조, OpenGL 파이프라인, 행렬 계산| 
-| 중급 뷰어 | PySide6 + USD Hydra 렌더러 |  Hydra 프레임워크, Storm 렌더러, Qt GUI 통합 | 
-
-```
-# 의존성 설치
-pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
-
-# 샘플 USD 파일 생성
-cd samples && python create_samples.py
-
-# 기본 뷰어 실행
-cd basic_viewer && python usd_basic_viewer.py
-
-# 중급 뷰어 실행
-cd hydra_viewer && python usd_hydra_viewer.py
-```
----
-
 # USD Python Viewers
 
 Universal Scene Description (USD) 파일을 위한 Python 뷰어 프로젝트입니다.
@@ -36,9 +13,10 @@ Universal Scene Description (USD) 파일을 위한 Python 뷰어 프로젝트입
 ```
 usd_viewers/
 ├── basic_viewer/
-│   └── usd_basic_viewer.py     # PyOpenGL 기반 기본 뷰어
+│   └── usd_basic_viewer.py     # PyOpenGL + GLFW 기반 기본 뷰어
 ├── hydra_viewer/
-│   └── usd_hydra_viewer.py     # PySide6 + Hydra 기반 중급 뷰어
+│   ├── usd_hydra_viewer.py     # PySide6 + Hydra 기반 중급 뷰어
+│   └── usd_hydra_viewer_pyqt6.py  # PyQt6 버전 (PySide6 DLL 충돌 시)
 ├── samples/
 │   └── create_samples.py       # 테스트용 USD 파일 생성
 └── README.md
@@ -46,128 +24,186 @@ usd_viewers/
 
 ## 🔧 설치
 
-### 공통 의존성
+### 권장: 새 Conda 환경 생성
+
+Anaconda base 환경에서 PySide6 DLL 충돌이 발생할 수 있으므로 새 환경을 권장합니다.
 
 ```bash
-pip install numpy usd-core
-```
-
-### 기본 뷰어 추가 의존성
-
-```bash
-pip install PyOpenGL PyOpenGL_accelerate glfw
-```
-
-### 중급 뷰어 추가 의존성
-
-```bash
-pip install PySide6 PyOpenGL PyOpenGL_accelerate
-```
-
-### 전체 설치 (한번에)
-
-```bash
-pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
-```
-
-## 🚀 실행
-
-### 샘플 USD 파일 생성
-
-```bash
-cd samples
-python create_samples.py
-```
-
-생성되는 파일:
-- `simple_scene.usda` - 기본 도형들
-- `mesh_scene.usda` - 커스텀 메시 (피라미드, 토러스)
-- `hierarchy_scene.usda` - 계층 구조 (로봇 팔)
-- `animated_scene.usda` - 애니메이션 (5초, 24fps)
-
-### 기본 뷰어 실행
-
-* 해결 방법 1: 새 가상환경 생성 (권장)bash# 새 환경 생성
-
-```
+# 새 환경 생성
 conda create -n usd_viewer python=3.11 -y
 
 # 환경 활성화
 conda activate usd_viewer
 
-# 패키지 설치
+# 전체 패키지 설치
 pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
-
-# 뷰어 실행
-python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
 ```
 
+### 패키지별 설치
+
 ```bash
-cd basic_viewer
-python usd_basic_viewer.py                        # 샘플 지오메트리
-python usd_basic_viewer.py ../samples/simple_scene.usda  # USD 파일 로드
+# 공통 (필수)
+pip install numpy usd-core
+
+# 기본 뷰어용
+pip install PyOpenGL PyOpenGL_accelerate glfw
+
+# 중급 뷰어용 (PySide6 또는 PyQt6 중 하나 선택)
+pip install PySide6
+# 또는 PySide6 DLL 충돌 시
+pip install PyQt6
+```
+
+## 🚀 실행
+
+### ⚠️ 중요: USD 파일 경로
+
+USD 파일은 **상대 경로**로 다른 파일들을 참조합니다. 따라서 **USD 파일이 있는 폴더에서 실행**해야 합니다.
+
+### Unitree 로봇 모델 실행 예시
+
+```bash
+# 환경 활성화
+conda activate usd_viewer
+
+# === Go2 로봇 ===
+cd C:\Users\Administrator\Desktop\Robot\Unitree\Unitree_model\Go2\usd
+python C:\Users\Administrator\Desktop\Robot\Unitree\usd_viewer\usd_basic_viewer.py go2.usd
+
+# === G1 로봇 (29dof) ===
+cd C:\Users\Administrator\Desktop\Robot\Unitree\Unitree_model\G1\29dof\usd\g1_29dof_rev_1_0
+python C:\Users\Administrator\Desktop\Robot\Unitree\usd_viewer\usd_basic_viewer.py g1_29dof_rev_1_0.usd
+
+# === H1 로봇 ===
+cd C:\Users\Administrator\Desktop\Robot\Unitree\Unitree_model\H1\h1\usd
+python C:\Users\Administrator\Desktop\Robot\Unitree\usd_viewer\usd_basic_viewer.py h1.usd
+
+# === B2 로봇 ===
+cd C:\Users\Administrator\Desktop\Robot\Unitree\Unitree_model\B2\usd
+python C:\Users\Administrator\Desktop\Robot\Unitree\usd_viewer\usd_basic_viewer.py B2.usd
+```
+
+### 일반 USD 파일 실행
+
+```bash
+# 샘플 지오메트리로 테스트 (USD 파일 없이)
+python usd_basic_viewer.py
+
+# USD 파일 지정
+python usd_basic_viewer.py path/to/your/file.usd
 ```
 
 ### 중급 뷰어 실행
 
 ```bash
-cd hydra_viewer
-python usd_hydra_viewer.py                        # 샘플 씬
-python usd_hydra_viewer.py ../samples/hierarchy_scene.usda  # USD 파일 로드
+# PySide6 버전
+python usd_hydra_viewer.py go2.usd
+
+# PyQt6 버전 (PySide6 DLL 충돌 시)
+python usd_hydra_viewer_pyqt6.py go2.usd
 ```
 
 ## 🎮 조작법
 
 ### 마우스
 
-| 동작 | 기본 뷰어 | 중급 뷰어 |
-|------|----------|----------|
-| 회전 | 좌클릭 드래그 | 좌클릭 드래그 |
-| 패닝 | 우클릭 드래그 | 우클릭 드래그 |
-| 줌 | 휠 스크롤 | 휠 스크롤 |
+| 동작 | 기능 |
+|------|------|
+| 좌클릭 드래그 | 회전 (Orbit) |
+| 우클릭 드래그 | 패닝 (Pan) |
+| 중클릭 드래그 | 줌 |
+| 휠 스크롤 | 줌 |
 
 ### 키보드
 
-| 키 | 기본 뷰어 | 중급 뷰어 |
-|----|----------|----------|
-| W | 와이어프레임 토글 | 드로우 모드 순환 |
-| G | 그리드 토글 | 그리드 토글 |
-| A | 좌표축 토글 | 좌표축 토글 |
-| R | 카메라 리셋 | - |
-| F | - | 씬 프레임 맞춤 |
-| L | - | 조명 토글 |
-| H | 도움말 | - |
-| Q/ESC | 종료 | - |
+| 키 | 기능 |
+|----|------|
+| **W** | 드로우 모드 순환 (Shaded → Wireframe → Points) |
+| **G** | 그리드 토글 |
+| **A** | 좌표축 토글 |
+| **L** | 조명 토글 |
+| **F** | 씬에 맞게 카메라 프레임 |
+| **R** | 카메라 리셋 |
+| **H** | 도움말 출력 |
+| **Q / ESC** | 종료 |
 
 ## 📊 뷰어 비교
 
 | 기능 | 기본 뷰어 | 중급 뷰어 |
 |------|----------|----------|
-| **렌더링 엔진** | 직접 OpenGL | USD Hydra (Storm) |
-| **GUI** | GLFW (최소) | PySide6 (풀 GUI) |
-| **머티리얼** | DisplayColor만 | PBR 지원 |
-| **조명** | 기본 OpenGL | USD 조명 시스템 |
-| **씬 탐색** | 없음 | 계층 구조 트리 |
-| **코드 복잡도** | ~500줄 | ~800줄 |
-| **학습 목표** | OpenGL 렌더링 기초 | USD 생태계 이해 |
+| **파일** | `usd_basic_viewer.py` | `usd_hydra_viewer.py` |
+| **렌더링** | 직접 OpenGL | USD Hydra (Storm) |
+| **GUI** | GLFW (최소) | PySide6/PyQt6 (풀 GUI) |
+| **Qt 필요** | ❌ 불필요 | ✅ 필요 |
+| **씬 계층 트리** | ❌ | ✅ |
+| **속성 패널** | ❌ | ✅ |
+| **지원 도형** | Mesh, Cube, Sphere, Cylinder, Cone, Capsule | 전체 USD 프림 |
+| **코드 복잡도** | ~700줄 | ~900줄 |
+| **학습 목표** | OpenGL 렌더링 기초 | USD Hydra 생태계 |
 
-## 📚 학습 순서 권장
+## 🔧 문제 해결
+
+### PySide6 DLL 충돌 (Anaconda base 환경)
+
+```
+ImportError: DLL load failed while importing QtWidgets
+```
+
+**해결책 1**: 새 Conda 환경 생성 (권장)
+```bash
+conda create -n usd_viewer python=3.11 -y
+conda activate usd_viewer
+pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
+```
+
+**해결책 2**: PyQt6 사용
+```bash
+pip install PyQt6
+python usd_hydra_viewer_pyqt6.py go2.usd
+```
+
+**해결책 3**: 기본 뷰어 사용 (Qt 불필요)
+```bash
+python usd_basic_viewer.py go2.usd
+```
+
+### USD 파일 로드 실패
+
+```
+Could not open asset @configuration/xxx.usd@ for payload
+```
+
+**원인**: USD 파일이 상대 경로로 다른 파일을 참조하는데, 현재 디렉토리가 다름
+
+**해결책**: USD 파일이 있는 폴더로 이동 후 실행
+```bash
+cd path/to/usd/folder
+python /path/to/usd_basic_viewer.py file.usd
+```
+
+### 메시를 찾을 수 없음
+
+```
+메시를 찾을 수 없습니다. 샘플 큐브를 사용합니다.
+```
+
+**원인**: 
+1. USD 파일에 메시가 없고 Reference/Payload로 외부 파일 참조
+2. 참조된 파일들을 찾을 수 없음
+
+**해결책**: USD 파일이 있는 디렉토리에서 실행
+
+## 📚 학습 순서
 
 ### 1단계: 기본 뷰어로 핵심 개념 이해
 
 ```
-렌더링 파이프라인 직접 구현
+OpenGL 렌더링 파이프라인 직접 구현
 ├── 버텍스, 페이스, 노멀 데이터 구조
-├── OpenGL 상태 머신
 ├── 투영/뷰 행렬 계산
+├── 조명 및 머티리얼
 └── 마우스 기반 카메라 제어
 ```
-
-**핵심 학습 포인트:**
-- USD 파일에서 메시 데이터 추출 (`UsdGeom.Mesh`)
-- 삼각형 분할 (Triangulation)
-- 노멀 계산 및 조명
-- 바운딩 박스 기반 카메라 초기화
 
 ### 2단계: 중급 뷰어로 USD 생태계 이해
 
@@ -176,118 +212,79 @@ Hydra 렌더링 프레임워크
 ├── UsdImagingGL.Engine
 ├── Storm 렌더 델리게이트
 ├── 렌더 파라미터 시스템
-└── 시간 샘플 (애니메이션)
+└── Qt GUI 통합
 ```
-
-**핵심 학습 포인트:**
-- Hydra가 "왜" 필요한지 이해 (복잡한 씬 최적화)
-- 렌더 델리게이트 개념 (Storm, Embree, etc.)
-- USD 스테이지 구조 및 계층 탐색
-- Qt 통합 방법
 
 ## 🔍 코드 하이라이트
 
-### USD 메시 데이터 추출 (기본 뷰어)
+### USD 메시 데이터 추출
 
 ```python
-def extract_mesh_from_prim(prim):
+def extract_mesh(prim):
     usd_mesh = UsdGeom.Mesh(prim)
     
     # 버텍스
     points = usd_mesh.GetPointsAttr().Get()
     
-    # 페이스 인덱스
+    # 페이스 인덱스  
     indices = usd_mesh.GetFaceVertexIndicesAttr().Get()
     counts = usd_mesh.GetFaceVertexCountsAttr().Get()
     
-    # 삼각형화
+    # 삼각형화 (Fan 방식)
     for count in counts:
         for i in range(1, count - 1):
-            triangle = [indices[0], indices[i], indices[i+1]]
+            triangle = [face[0], face[i], face[i+1]]
 ```
 
-### Hydra 렌더링 (중급 뷰어)
+### 기본 도형 렌더링
 
 ```python
-def render_hydra(self):
-    params = UsdImagingGL.RenderParams()
-    params.frame = Usd.TimeCode(self.time_code)
-    params.drawMode = UsdImagingGL.DrawMode.DRAW_SHADED_SMOOTH
-    params.enableLighting = True
-    
-    self.renderer.SetCameraState(view_matrix, proj_matrix)
-    self.renderer.Render(root, params)
+# USD 기본 도형 지원
+if prim.IsA(UsdGeom.Cube):
+    size = UsdGeom.Cube(prim).GetSizeAttr().Get()
+    PrimitiveRenderer.render_cube(size, color)
+
+elif prim.IsA(UsdGeom.Sphere):
+    radius = UsdGeom.Sphere(prim).GetRadiusAttr().Get()
+    PrimitiveRenderer.render_sphere(radius, color)
 ```
 
 ## 🔗 관련 자료
 
-- [USD 공식 문서](https://openusd.org/docs/)
+- [OpenUSD 공식 문서](https://openusd.org/docs/)
 - [Pixar USD GitHub](https://github.com/PixarAnimationStudios/USD)
-- [Hydra 아키텍처](https://openusd.org/docs/api/hd_page_front.html)
-- [NVIDIA Omniverse](https://developer.nvidia.com/omniverse)
+- [Unitree Robotics](https://github.com/unitreerobotics)
+- [NVIDIA Isaac Sim](https://developer.nvidia.com/isaac-sim)
 
-## 📝 향후 확장 아이디어
+## 📝 Unitree 모델 구조
 
-1. **멀티 렌더 델리게이트 지원** - Embree, RenderMan 등
-2. **USD Composer 스타일 편집** - 프림 생성/수정/삭제
-3. **USDZ 내보내기** - AR 콘텐츠 제작
-4. **물리 시뮬레이션 미리보기** - UsdPhysics 통합
-5. **Python 스크립팅 콘솔** - 런타임 USD 조작
+```
+Unitree_model/
+├── Go2/usd/
+│   ├── go2.usd                    # 메인 파일
+│   └── configuration/
+│       ├── go2_description_base.usd
+│       ├── go2_description_physics.usd
+│       └── go2_description_sensor.usd
+│
+├── G1/29dof/usd/g1_29dof_rev_1_0/
+│   ├── g1_29dof_rev_1_0.usd       # 메인 파일
+│   └── configuration/
+│
+├── H1/h1/usd/
+│   ├── h1.usd                     # 메인 파일
+│   └── configuration/
+│
+└── B2/usd/
+    └── B2.usd                     # 메인 파일
+```
 
 ## ⚠️ 알려진 제한사항
 
-- 기본 뷰어는 텍스처 지원 없음
-- Hydra Storm은 일부 고급 PBR 기능 미지원
+- 텍스처/머티리얼 렌더링 미지원 (기본 뷰어)
+- Reference/Payload가 있는 USD는 해당 폴더에서 실행 필요
 - 대용량 씬 (100만+ 폴리곤)에서 성능 저하 가능
-- Windows에서 OpenGL 드라이버 호환성 이슈 가능
-
-## 문제점 해결
-
-### 해결 방법 1: 새 가상환경 생성 (권장)
-
-```bash
-# 새 환경 생성
-conda create -n usd_viewer python=3.11 -y
-
-# 환경 활성화
-conda activate usd_viewer
-
-# 패키지 설치
-pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
-
-# 뷰어 실행
-python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
-```
-
-### 해결 방법 2: PyQt6 사용 (PySide6 대체)
-
-```
-### 방법 1: PyQt6 사용 (PySide6 대체)
-```bash
-# PyQt6 설치
-pip install PyQt6
-
-# 실행
-python usd_viewer\hydra_viewer\usd_hydra_viewer_pyqt6.py go2.usd
-```
-
-### 방법 2: 새 Conda 환경 (권장, 더 안정적)
-
-```bash
-# 새 환경 생성
-conda create -n usd_viewer python=3.11 -y
-conda activate usd_viewer
-
-# 패키지 설치
-pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
-
-# 원래 뷰어 실행
-python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
-```
-
-* DLL 충돌 원인: Anaconda base 환경에 다른 Qt 버전(예: PyQt5, qtpy 등)이 이미 설치되어 있어서 PySide6와 충돌하는 것입니다.
-* 새 환경을 만들면 깨끗한 상태에서 시작하므로 문제가 해결됩니다.
-
+- Hydra Storm은 일부 고급 PBR 기능 미지원
 
 ## 📜 라이선스
 
