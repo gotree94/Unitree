@@ -87,6 +87,21 @@ python create_samples.py
 
 ### 기본 뷰어 실행
 
+* 해결 방법 1: 새 가상환경 생성 (권장)bash# 새 환경 생성
+
+```
+conda create -n usd_viewer python=3.11 -y
+
+# 환경 활성화
+conda activate usd_viewer
+
+# 패키지 설치
+pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
+
+# 뷰어 실행
+python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
+```
+
 ```bash
 cd basic_viewer
 python usd_basic_viewer.py                        # 샘플 지오메트리
