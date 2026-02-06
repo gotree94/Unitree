@@ -241,6 +241,54 @@ def render_hydra(self):
 - 대용량 씬 (100만+ 폴리곤)에서 성능 저하 가능
 - Windows에서 OpenGL 드라이버 호환성 이슈 가능
 
+## 문제점 해결
+
+### 해결 방법 1: 새 가상환경 생성 (권장)
+
+```bash
+# 새 환경 생성
+conda create -n usd_viewer python=3.11 -y
+
+# 환경 활성화
+conda activate usd_viewer
+
+# 패키지 설치
+pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
+
+# 뷰어 실행
+python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
+```
+
+### 해결 방법 2: PyQt6 사용 (PySide6 대체)
+
+```
+### 방법 1: PyQt6 사용 (PySide6 대체)
+```bash
+# PyQt6 설치
+pip install PyQt6
+
+# 실행
+python usd_viewer\hydra_viewer\usd_hydra_viewer_pyqt6.py go2.usd
+```
+
+### 방법 2: 새 Conda 환경 (권장, 더 안정적)
+
+```bash
+# 새 환경 생성
+conda create -n usd_viewer python=3.11 -y
+conda activate usd_viewer
+
+# 패키지 설치
+pip install numpy usd-core PyOpenGL PyOpenGL_accelerate glfw PySide6
+
+# 원래 뷰어 실행
+python usd_viewer\hydra_viewer\usd_hydra_viewer.py go2.usd
+```
+
+* DLL 충돌 원인: Anaconda base 환경에 다른 Qt 버전(예: PyQt5, qtpy 등)이 이미 설치되어 있어서 PySide6와 충돌하는 것입니다.
+* 새 환경을 만들면 깨끗한 상태에서 시작하므로 문제가 해결됩니다.
+
+
 ## 📜 라이선스
 
 이 프로젝트는 교육 목적으로 제작되었습니다.
